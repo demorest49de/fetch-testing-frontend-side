@@ -1,0 +1,11 @@
+body {
+    background-color: greenyellow;
+    padding: 30px;
+}
+
+#form {
+    max-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
