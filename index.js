@@ -3,6 +3,35 @@
 const URL = 'https://jsonplaceholder.typicode.com/posts';
 const postWrapper = document.querySelector('.post-wrapper');
 
+const fetchRequest = async (URL, {
+    method = 'GET',
+    callback,
+    body,
+    headers,
+}) => {
+    try {
+        const options = {
+            method,
+        };
+        
+        if (body) options.body = JSON.stringify(body);
+        if (headers) options.headers = headers;
+        
+        const response = await fetch(URL, options);
+        if (response.ok) {
+            const data = await response.json();
+            if (callback) callback(null, data);
+            return;
+        }
+        
+        throw new Error(response.status);
+        
+    } catch (error) {
+        callback(error);
+    }
+};
+
+
 // правильная функция для работы с запросами - универсальная
 const httpRequest = (url, {
     method = 'GET',
@@ -26,7 +55,7 @@ const httpRequest = (url, {
             }
             const data = xhr.response;
             console.log(' : ', callback);
-            if (callback) callback(null, data);// здесь происходит вызов рендерГудс
+            if (callback) callback(null, JSON.parse(data));// здесь происходит вызов рендерГудс
         });
         
         xhr.addEventListener('error', () => {
@@ -44,12 +73,13 @@ const cbGET = (error, data) => {
     if (error) {
         const status = data;
         const checkedStatus = status ? `, ${status}` : '';
-        console.warn(' что-то пошло не так: ', error,checkedStatus);
+        console.warn(' что-то пошло не так: ', error, checkedStatus);
         alert(` что-то пошло не так: ${error}${checkedStatus}`);
         return;
     }
-    
-    const posts = JSON.parse(data).map(x => {
+    console.log(' : ',data);
+    const posts = data.map(x => {
+       
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
@@ -62,20 +92,29 @@ const cbGET = (error, data) => {
         `;
         return card;
     });
-    console.log(posts);
+    console.log(posts[0]);
+    
     postWrapper.style.cssText = `
         margin: 0 auto;
         display:flex;
         flexDirection: row;
         flex-wrap: wrap;
     `;
+    
     postWrapper.append(...posts);
 };
 
 //GET
 const getBtn = document.querySelector('#get');
 getBtn.addEventListener('click', () => {
-    httpRequest(URL, {
+    //1 способ
+    // httpRequest(URL, {
+    //     method: 'GET',
+    //     callback: cbGET,
+    // });
+    
+    //2 способ
+    fetchRequest(URL, {
         method: 'GET',
         callback: cbGET,
     });
@@ -93,7 +132,7 @@ form.addEventListener('submit', (e) => {
             if (error) {
                 const status = data;
                 const checkedStatus = status ? `, ${status}` : '';
-                console.warn(' что-то пошло не так: ', error,checkedStatus);
+                console.warn(' что-то пошло не так: ', error, checkedStatus);
                 alert(` что-то пошло не так: ${error}${checkedStatus}`);
                 form.textContent = ` что-то пошло не так: ${error}`;
             } else {
