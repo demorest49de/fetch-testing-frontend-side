@@ -22,7 +22,6 @@ const fetchRequest = async (URL, {
         if (response.ok) {
             const data = await response.json();
             if (callback) return callback(null, data);
-            return;
         }
         
         throw new Error(`Error: ${response}`);
@@ -71,7 +70,6 @@ const fetchRequest = async (URL, {
 // };
 
 
-
 const handleWarnings = (error, data) => {
     const status = data;
     const errorText = `${error.message ? ("Error: " + error.message) : ""}` + (status ? `, ${status}` : '');
@@ -82,7 +80,7 @@ const handleWarnings = (error, data) => {
 const cbGET = (error, data) => {
     if (error) {
         handleWarnings(error, data);
-        return 'Error!';
+        return false;
     }
     
     const posts = data.map(x => {
@@ -109,7 +107,7 @@ const cbGET = (error, data) => {
     `;
     
     postWrapper.append(...posts);
-    return 'Success!';
+    return true;
 };
 
 //GET
@@ -157,54 +155,58 @@ const cbGET = (error, data) => {
 
 
 //Работа с промисами
-const httpRequest = (url, {
-    method = 'GET',
-    callback,
-    body = {},
-    headers,
-}) => {
-    try {
-        const xhr = new XMLHttpRequest();
-        xhr.open(method, URL);
-        if (headers) {
-            for (const [key, value] of Object.entries(headers)) {
-                xhr.setRequestHeader(key, value);
-            }
-        }
-        
-        xhr.addEventListener('load', () => {
-            if (xhr.status < 200 || xhr.status >= 300) {
-                callback(new Error(xhr.status), xhr.statusText);
-                return;
-            }
-            const data = xhr.response;
-            console.log(' : ', callback);
-            if (callback) callback(null, JSON.parse(data));// здесь происходит вызов рендерГудс
-        });
-        
-        xhr.addEventListener('error', ({target}) => {
-            console.log(target.status);
-            callback(new Error(xhr.statusText), xhr.responseText);
-        });
-        
-        xhr.send(JSON.stringify(body));
-    } catch (error) {
-        callback(new Error(error.message));
-    }
-};
+// const httpRequest = (url, {
+//     method = 'GET',
+//     callback,
+//     body = {},
+//     headers,
+// }) => {
+//     try {
+//         const xhr = new XMLHttpRequest();
+//         xhr.open(method, URL);
+//         if (headers) {
+//             for (const [key, value] of Object.entries(headers)) {
+//                 xhr.setRequestHeader(key, value);
+//             }
+//         }
+//
+//         xhr.addEventListener('load', () => {
+//             if (xhr.status < 200 || xhr.status >= 300) {
+//                 callback(new Error(xhr.status), xhr.statusText);
+//                 return;
+//             }
+//             const data = xhr.response;
+//             console.log(' : ', callback);
+//             if (callback) callback(null, JSON.parse(data));// здесь происходит вызов рендерГудс
+//         });
+//
+//         xhr.addEventListener('error', ({target}) => {
+//             console.log(target.status);
+//             callback(new Error(xhr.statusText), xhr.responseText);
+//         });
+//
+//         xhr.send(JSON.stringify(body));
+//     } catch (error) {
+//         callback(new Error(error.message));
+//     }
+// };
 
 const getBtn = document.querySelector('#get');
+
 getBtn.addEventListener('click', async () => {
     //1 способ
     // httpRequest(URL, {
     //     method: 'GET',
     //     callback: cbGET,
     // });
-    
+    //get.classlist.add('preloader-class');
     //2 способ
     const result = await fetchRequest(URL, {
         method: 'GET',
         callback: cbGET,
     });
     console.log(result);
+    if(result){
+        //get.classlist.remove('preloader-class');
+    }
 });
