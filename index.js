@@ -206,7 +206,26 @@ getBtn.addEventListener('click', async () => {
         callback: cbGET,
     });
     console.log(result);
-    if(result){
+    if (result) {
         //get.classlist.remove('preloader-class');
     }
 });
+
+const promise = new Promise((resolve) => {
+    setTimeout(resolve, 2000, '1');
+});
+
+const promise2 = new Promise((resolve) => {
+    setTimeout(resolve, 3000, '2');
+});
+
+
+(async () => {
+    console.log(' : ', await promise);
+    
+    console.log(' : ', await promise2);
+    
+    console.log(' : ', await promise);
+    
+    console.log(' : ', await promise2);
+})();
